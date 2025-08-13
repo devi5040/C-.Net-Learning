@@ -102,7 +102,7 @@ Function
 
 ## Example Program
 
-```sh
+```csharp
 using System;
 namespace HelloWorld
 {
