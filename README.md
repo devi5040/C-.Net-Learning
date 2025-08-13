@@ -102,7 +102,6 @@ Function
 
 ## Example Program
 
-<pre> 
 ```sh
 using System;
 namespace HelloWorld
@@ -114,7 +113,6 @@ namespace HelloWorld
     }
 }
 ```
-</pre>
 
 Line 1: using System means that we can use classes from the System namespace.
 Line 2: namespace is used to organize the code and it is a container for classes and other namespace.
