@@ -48,8 +48,8 @@ Operators are used to manipulate variables and values.
 
 1. Single line comment - //
    eg: // This is a comment
-2. Multi line comment - /\* _/
-   eg: /_ Hello good morning
+2. Multi line comment - /\* \*/
+   eg: /\* Hello good morning
    this is a comment \*/
 
 ---
@@ -102,7 +102,15 @@ Function
 
 ## Example Program
 
-<pre> ```csharp using System;namespace HelloWorld{class Program{static void Main(string[] args){Console.WriteLine("Hello World!");}}}</pre>
+<pre> ```using System;
+namespace HelloWorld
+{
+    class Program{
+        static void Main(string[] args){
+            Console.WriteLine("Hello World!");
+        }
+    }
+}</pre>
 
 Line 1: using System means that we can use classes from the System namespace.
 Line 2: namespace is used to organize the code and it is a container for classes and other namespace.
