@@ -114,9 +114,9 @@ namespace HelloWorld
 }
 ```
 
-Line 1: using System means that we can use classes from the System namespace.
-Line 2: namespace is used to organize the code and it is a container for classes and other namespace.
-Line 3: The curly braces {} marks the beginning and the end of a block of code.
-Line 4: class is a container for data and methods, which brings functionality to your program.
-Line 5: Main method. Any code inside its curly braces {} will be executed.
-Line 6: Console is a class of the System namespace, which has a WriteLine() method that is used to output/print text.
+- **Line 1:** using System means that we can use classes from the System namespace.
+- **Line 2:** namespace is used to organize the code and it is a container for classes and other namespace.
+- **Line 3:** The curly braces {} marks the beginning and the end of a block of code.
+- **Line 4:** class is a container for data and methods, which brings functionality to your program.
+- **Line 5:** Main method. Any code inside its curly braces {} will be executed.
+- **Line 6:** Console is a class of the System namespace, which has a WriteLine() method that is used to output/print text.
