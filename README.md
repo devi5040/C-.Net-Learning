@@ -102,7 +102,9 @@ Function
 
 ## Example Program
 
-<pre> ```using System;
+<pre> 
+```sh
+using System;
 namespace HelloWorld
 {
     class Program{
@@ -110,7 +112,9 @@ namespace HelloWorld
             Console.WriteLine("Hello World!");
         }
     }
-}</pre>
+}
+```
+</pre>
 
 Line 1: using System means that we can use classes from the System namespace.
 Line 2: namespace is used to organize the code and it is a container for classes and other namespace.
