@@ -120,3 +120,31 @@ namespace HelloWorld
 - **Line 4:** class is a container for data and methods, which brings functionality to your program.
 - **Line 5:** Main method. Any code inside its curly braces {} will be executed.
 - **Line 6:** Console is a class of the System namespace, which has a WriteLine() method that is used to output/print text.
+
+---
+
+### Outputting Values
+
+To output values in c# we use WriteLine() method.
+Example:
+
+```csharp
+Console.WriteLine("Hello World!");
+```
+
+We also have Write() method. WriteLine() will insert a new line at the end of output but Write() will not insert new line.
+
+```csharp
+Console.Write("Hello");
+```
+
+---
+
+## Constant values
+
+The values declared as constant cannot be changed after initializing.
+
+```csharp
+const int myNum=15;
+myNum=50; // This will throw an error
+```
