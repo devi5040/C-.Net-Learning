@@ -148,3 +148,32 @@ The values declared as constant cannot be changed after initializing.
 const int myNum=15;
 myNum=50; // This will throw an error
 ```
+
+---
+
+# Displaying variables
+
+Variables are often displayed using WriteLine() method.
+
+1. Variables + text
+
+```csharp
+string name="John";
+Console.WriteLine("Hello "+name);
+```
+
+2. Variables + Variables
+
+```csharp
+string firstName = "John";
+string lastName = "Doe";
+Console.WriteLine(firstName + lastName)
+```
+
+3. Numbers (+ will be an arithmetic operator here)
+
+```csharp
+int num1 = 11;
+int num2 = 12;
+Console.WriteLine(num1+num2)
+```
