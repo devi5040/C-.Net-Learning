@@ -177,3 +177,49 @@ int num1 = 11;
 int num2 = 12;
 Console.WriteLine(num1+num2)
 ```
+
+---
+
+# Assigning multiple variables at a time
+
+```csharp
+int x,y,z;
+x = y= z = 50;
+Console.WriteLine(x+y+z);
+```
+
+---
+
+# identifiers
+
+All c# variables should be identified with unique names. These unique names are called as identifiers.
+
+---
+
+# Data Types
+
+1. Integer types
+   The int data type can store whole numbers from -2147483648 to 2147483647.
+   Example:
+
+   ```csharp
+   int myNum=10000;
+   Console.WriteLine(myNum);
+   ```
+
+2. Long type
+   The long data type can store whole numbers from -9223372036854775808 to 9223372036854775807.
+   It is used to store values which is more than int range.
+   Example:
+   ```csharp
+   long myNum = 150000L;
+   Console.WriteLine(myNum);
+   ```
+3. Float type
+   The float and double data types can store fractional numbers.
+   Example:
+   ```csharp
+   float num = 5.75F;
+   double num2 = 19.99D;
+   Console.WriteLine(num, num2);
+   ```
