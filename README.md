@@ -223,3 +223,79 @@ All c# variables should be identified with unique names. These unique names are 
    double num2 = 19.99D;
    Console.WriteLine(num, num2);
    ```
+   Scientific Numbers
+   ```csharp
+   float f1 = 35e3f;
+   double d1 = 12e4d;
+   Console.WriteLine(f1,d1)
+   ```
+4. Boolean Data Types
+   The boolean type is declared with keyword 'bool'.
+   It can only have 2 values, true or false.
+   example:
+   ```csharp
+   bool b1 = true;
+   Console.WriteLine(b1)
+   ```
+5. Character Data Type
+   The character type is declared with keyword 'char'.
+   It should be enclosed within ' '.
+   Example:
+   ```csharp
+   char c1 = 'A';
+   Console.WriteLine(c1);
+   ```
+6. Strings
+   The strings is used to store the sequence of characters.
+   It should be enclosed within " ".
+   Example:
+   ```csharp
+   string greeting = "Hello World";
+   Console.WriteLine(greeting);
+   ```
+
+---
+
+## C# Type Casting
+
+1. Implicit type casting
+   In this type casting the smaller type will be converted to larger type automatically.
+   char -> int -> long -> float -> double
+   Example:
+   ```csharp
+   int myInt = 9;
+   double myDouble = myInt;
+   Console.WriteLine(myInt)
+   Console.WriteLine(myDouble)
+   ```
+2. Explicit type casting
+   In this type casting the larger type will be converted to smaller type manually.
+   double -> float -> long -> int -> char
+   Example:
+   ```csharp
+   double myDouble = 9.87;
+   int myInt = (int) myDouble;
+   Console.WriteLine(myDouble);
+   Console.WriteLine(myInt)
+   ```
+
+### Methods in converting
+
+There are some methods in c# for type casting
+
+- Convert.ToBoolean
+- Convert.ToString
+- Convert.ToDouble
+- Convert.ToInt32(int)
+- Convert.ToInt64 (long)
+  Example
+
+```csharp
+int myInt = 10;
+double myDouble = 5.25;
+bool myBool = true;
+Console.WriteLine(Convert.ToString(myInt))
+Console.WriteLine(Convert.ToDouble(myInt))
+Console.WriteLine(Convert.ToInt32(myDouble))
+Console.WriteLine(Convert.ToString(myBool))
+```
