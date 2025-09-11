@@ -299,3 +299,32 @@ Console.WriteLine(Convert.ToDouble(myInt))
 Console.WriteLine(Convert.ToInt32(myDouble))
 Console.WriteLine(Convert.ToString(myBool))
 ```
+
+## User input
+
+We use Console.WriteLine() to read the input from the user.
+Example:
+
+```csharp
+Console.WriteLine("Enter your name?");
+string username = Console.ReadLine();
+Console.WriteLine("Username is:"+username);
+```
+
+Taking a number input
+
+```csharp
+Console.WriteLine("Enter your age");
+int age = Convert.toInt32(Console.ReadLine());
+Console.WriteLine("User's age is:"+age)
+```
+
+## Operators
+
+Operators are used to perform operations on the variables or values.
+
+### Arithmetic Operators
+
+| Operator | Name     | Description     |
+| -------- | -------- | --------------- |
+| +        | Addition | Adds two values |
