@@ -325,6 +325,47 @@ Operators are used to perform operations on the variables or values.
 
 ### Arithmetic Operators
 
-| Operator | Name     | Description     |
-| -------- | -------- | --------------- |
-| +        | Addition | Adds two values |
+| Operator | Name           | Description                           |
+| -------- | -------------- | ------------------------------------- |
+| +        | Addition       | Adds two values                       |
+| -        | Subtraction    | Subtracts one value from another      |
+| \*       | Multiplication | Multiplies two values                 |
+| /        | Division       | Divides one value by another          |
+| %        | Modulus        | Returns the division remainder        |
+| ++       | Increment      | Increase the value of a variable by 1 |
+| --       | Decrement      | Decrease the value of a variable by 1 |
+
+### Assignment Operators
+
+| Operator | Example | Same As |
+| -------- | ------- | ------- |
+| =        | x=5     | x=5     |
+| +=       | x+=5    | x=x+5   |
+| -=       | x-=5    | x=x-5   |
+| \*=      | x\*=5   | x=x\*5  |
+| /=       | x/=5    | x=x/5   |
+| %=       | x%=5    | x=x%5   |
+| &=       | x&=3    | x= x&3  |
+| \|=      | x\|=3   | x=x\|3  |
+| ^=       | x^=3    | x=x^3   |
+| >>=      | x>>=4   | x=x>>4  |
+| <<=      | x<<=4   | x=x<<4  |
+
+### Comparison Operators
+
+| Operator | Name                     |
+| -------- | ------------------------ |
+| ==       | Equal to                 |
+| !=       | Not equal                |
+| >        | Greater than             |
+| <        | Less than                |
+| >=       | Greater than or equal to |
+| <=       | Less than or equal to    |
+
+### Logical Operators
+
+| Operator | Name        | Description                                  |
+| -------- | ----------- | -------------------------------------------- |
+| &&       | Logical and | Returns true if both statements are true     |
+| \|\|     | Logical or  | Returns true if one of the statement is true |
+| !        | Logical not | Reverse the result                           |
