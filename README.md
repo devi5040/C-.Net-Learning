@@ -369,3 +369,83 @@ Operators are used to perform operations on the variables or values.
 | &&       | Logical and | Returns true if both statements are true     |
 | \|\|     | Logical or  | Returns true if one of the statement is true |
 | !        | Logical not | Reverse the result                           |
+
+---
+
+## C# Math
+
+1. Math.Max(x,y)
+   This method can be used to find the highest value of x and y.
+2. Math.Min(x,y)
+   This method can be used to find the lowest value between x and y.
+3. Math.sqrt(x)
+   This method returns the square root of x.
+4. Math.Abs(x)
+   This method returns the absolute value of x.
+5. Math.Round()
+   This method rounds a number to nearest whole number.
+   Example:
+
+```csharp
+Math.Max(4,7);
+Math.Min(3,9);
+Math.sqrt(64);
+Math.Abs(-9.8);
+Math.Round(9.98);
+```
+
+---
+
+## C# Strings
+
+A string variable contains a collection of characters surrounded by double quotes.
+Example:
+
+```csharp
+string greeting = "Hello good morning";
+```
+
+string length
+The length of a string can be found with the Length property.
+
+```csharp
+string text = "hello hi greeting";
+Console.WriteLine("The length of the string is: "+ text.Length);
+```
+
+ToUpper() and ToLower()
+These returns a copy of the string converted to uppercase or lowercase.
+
+```csharp
+string text="Hello World";
+Console.WriteLine(text.ToUpper());
+Console.WriteLine(text.ToLower());
+```
+
+### String concatenation
+
+The + operator can be used between strings to combine them which is called concatenation.
+
+```csharp
+string firstName = "Doe ";
+string lastName = "Smith";
+string name = firstName + lastName;
+Console.WriteLine(name);
+```
+
+There is also string.Concat() method to concatenate two strings.
+
+### String interpolation
+
+it substitutes values of variables into placeholders in a string.
+Example:
+
+```csharp
+string firstName = "Doe ";
+string lastName = "Smith";
+string name = $"My full name is: {firstName} {lastName}";
+Console.WriteLine(name);
+
+```
+
+---
