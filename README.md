@@ -449,3 +449,126 @@ Console.WriteLine(name);
 ```
 
 ---
+
+# OOPS
+
+DRY Principle: The Don't Repeat Yourself(DRY) principle is about reducing the repetition of code. You should extract the common codes from the program and reuse it instead of repeating it.
+
+### Class
+
+- The class is a template for an object.
+- When a variable is declared inside the class it is referred as field or attribute.
+- When a function is declared inside the class it is referred as method.
+  Example:
+
+```csharp
+class Car{
+   string color = "red";
+}
+```
+
+### Object
+
+- An object is an instance of the class.
+- Creating an object
+
+```csharp
+class Car{
+   string color = "red";
+   static void Main(string[] args){
+      Car myObj = new Car();
+      Console.WriteLine(myObj.color)
+   }
+}
+```
+
+- Multiple Objects
+
+```csharp
+class Car {
+   string color = "red";
+   static void Main(string[] args){
+      Car myObj1 = new Car();
+      Car myObj2 = new Car();
+      Console.WriteLine(myObj1.color, myObj2.color)
+   }
+}
+```
+
+### Using multiple classes
+
+- Accessing an object created in one class from another class.
+
+```csharp
+// Prg2.cs
+class Car{
+   public string color = "blue";
+}
+```
+
+```csharp
+// Prg3.cs
+class Program{
+   static void Main(string[] args){
+      Car myObj = new Car();
+      Console.WriteLine(myObj.color)
+   }
+}
+```
+
+### Class Members
+
+- A class will have fields/attributes ad methods.
+
+```csharp
+class Car {
+   string color = "red";
+   public void fullThrottle(){
+      Console.WriteLine("Vehicle going in full throttle!")
+   }
+}
+```
+
+- Using in multiple classes
+
+```csharp
+// prg.cs
+class Car {
+   public string model;
+   public int maxSpeed;
+}
+```
+
+```csharp
+//prg1.cs
+class Program{
+   static void Main(string[] args){
+      Car ford = new Car();
+      ford.model = "a1";
+      ford.maxSpeed = 123;
+      Car maruti = new Car();
+      maruti.model = "800";
+      maruti.maxSpeed = 140;
+
+      Console.WriteLine(maruti.model);
+      Console.WriteLine(maruti.maxSpeed);
+   }
+}
+```
+
+### C# Constructors
+
+- Constructor is a special method that is used to initialize objects.
+
+```csharp
+class Car {
+   string color;
+   public Car(string carColor){
+      color = carColor;
+   }
+   static void Main(string[] args){
+      Car ford = new Car("red");
+      Console.WriteLine(ford.color);
+   }
+}
+```
