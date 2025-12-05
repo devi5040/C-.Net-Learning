@@ -633,3 +633,37 @@ class Program{
 ```
 
 ---
+
+## Inheritance
+
+- In c# it is possible to inherit fields and methods from one class to another class.
+  1.  Derived class (child) : The class that inherits from another class.
+  2.  Base Class (Parent) : The class which is inherited by a child/derived class.
+- To inherit from a class we use ':'.
+- Example : The Car class will inherit the fields and methods from parent class Vehicle.
+
+```csharp
+class Vehicle{
+   public string brand = "Ford";
+   public void honk(){
+      Console.WriteLine("The vehicle honk")
+   }
+}
+
+class Car:Vehicle{
+   public string modelName="Mustang";
+}
+
+class Program{
+   static void Main(string[] args){
+      Car myCar = new Car();
+      myCar.honk();
+      Console.WriteLine(myCar.brand+" "+ myCar.modelName);
+   }
+}
+```
+
+**Sealed keyword**
+If you don't want other classes to inherit the class you can use sealed keyword.
+
+---
