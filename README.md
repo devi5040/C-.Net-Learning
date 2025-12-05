@@ -572,3 +572,64 @@ class Car {
    }
 }
 ```
+
+---
+
+## Access Modifiers
+
+- public : The code is accessible for all classes.
+- private : The code is accessible only within the class.
+- protected : The code is accessible within the same class or a class that has been inherited from that class.
+- internal : The code is only accessible within it's own assembly, but not from another assembly.
+
+---
+
+## Encapsulation and get/set properties
+
+- Encapsulation : It is to make sure that the sensitive data is hidden from the users.
+- To achieve this,
+  1. Declare the attributes as private.
+  2. Provide public get and set methods through properties to get and set the value of the private attributes.
+- A property is like a combination of variable and methods. It has 2 methods get and set.
+  Example:
+
+```csharp
+class Person{
+   private string name;
+   public string Name{
+      get {return name};
+      set {name=value}
+   }
+}
+
+class Program {
+   static void Main(string[] args){
+      Person myObj = new Person();
+      myObj.Name = "devi";
+      Console.WriteLine(myObj.Name);
+   }
+}
+```
+
+**Automatic Properties**
+
+- We do not have to define the field for property, we only have to write the get and set.
+
+```csharp
+class Person{
+   public string Name{
+      get;set;
+   }
+}
+
+class Program{
+   static void Main(string[] args){
+      Person myObj = new Person();
+      myObj.Name = "devi";
+      Console.WriteLine(myObj.Name);
+   }
+}
+// Note that it will work same as the above example
+```
+
+---
