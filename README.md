@@ -667,3 +667,180 @@ class Program{
 If you don't want other classes to inherit the class you can use sealed keyword.
 
 ---
+
+## Polymorphism
+
+- Inheritance lets us to inherit the methods and fields from base class. Polymorphism uses those.
+- Example
+
+```csharp
+class Animal{
+   public void makeAnimalSound(){
+      Console.WriteLine("Animal made sound");
+   }
+}
+
+class Pig:Animal{
+   public void makeAnimalSound(){
+      Console.WriteLine("Pig makes sound: wee wee");
+   }
+}
+
+class Dog:Animal{
+   public void makeAnimalSound(){
+      Console.WriteLine("Dog makes sound: bark bark");
+   }
+}
+
+class Program {
+   static void Main(string[] args){
+      Pig myPig = new Pig();
+      Dog myDog = new Dog();
+      myPig.makeAnimalSound();
+      myDog.makeAnimalSound();
+   }
+}
+// Output will be
+// Animal made sound
+// Animal made sound
+```
+
+- The above behaviour due to the method in base class overrides the method in derived class.
+- To overcome this in c# we need to use virtual keyword in base class method and override keyword in derived class method.
+
+```csharp
+class Animal{
+   public virtual void makeAnimalSound(){
+      Console.WriteLine("Animal made sound");
+   }
+}
+
+class Pig:Animal {
+   public override void makeAnimalSound(){
+      Console.WriteLine("The pig make sound: wee wee");
+   }
+}
+
+class Dog:Animal {
+   public override void makeAnimalSound(){
+      Console.WriteLine("The dog make sound: bark bark");
+   }
+}
+
+class Program{
+   static void Main(string[] args){
+      Pig myPig = new Pig();
+      Dog myDog = new Dog();
+      myPig.makeAnimalSound();
+      myDog.makeAnimalSound();
+   }
+}
+// Output will be
+// The pig make sound: wee wee
+// The dog make sound: bark bark
+```
+
+---
+
+## Abstraction
+
+### Abstract classes and method
+
+- abstract class: A restricted class that cannot be used to create an object. To access this it must be inherited from another class.
+- abstract method: This can only be used in abstract classes and these doesn't have body. The body is provided by the derived class.
+
+```csharp
+abstract class Animal{
+   public abstract void makeAnimalSound();
+   public void sleep(){
+      Console.WriteLine("zzz")
+   }
+}
+// If we try to create an object like Animal myAnimal = new Animal(); it will give an error.
+```
+
+```csharp
+abstract class Animal{
+   public abstract void makeAnimalSound();
+   public void sleep(){
+      Console.WriteLine("zzz");
+   }
+}
+
+class Pig:Animal {
+   public override void makeAnimalSound(){
+      Console.WriteLine("Pig makes sound: wee wee");
+   }
+}
+
+class Program{
+   static void Main(string[] args){
+      Pig myPig = new Pig();
+      myPig.makeAnimalSound();
+      myPig.sleep();
+   }
+}
+```
+
+## Interface
+
+- An interface is a completely abstract class, which can only contain abstract methods and properties(with empty bodies)
+
+```csharp
+interface Animal{
+   void makeSound();
+   void run();
+}
+```
+
+- Best practice is to name interface starting with I.
+
+```csharp
+interface IAnimal{
+   void makeSound();
+}
+
+class Dog:IAnimal{
+   public void makeSound(){
+      Console.WriteLine("Dog barks");
+   }
+}
+
+class Program {
+   static void Main(string[] args){
+      Dog myObj = new Dog();
+      myObj.makeSound();
+   }
+}
+```
+
+### Multiple interface
+
+```csharp
+interface IFirstInterface {
+   void firstDemo();
+}
+
+interface ISecondInterface {
+   void secondDemo();
+}
+
+class Demo:IFirstInterface, ISecondInterface {
+   public void firstDemo(){
+      Console.WriteLine("Hello world!");
+   }
+   public void secondDemo(){
+      Console.WriteLine("Hello Hello World!");
+   }
+}
+
+class Program {
+   static void Main(string[] args){
+      Demo demoObj = new Demo();
+      demoObj.firstDemo();
+      demoObj.secondDemo();
+   }
+}
+```
+
+---
