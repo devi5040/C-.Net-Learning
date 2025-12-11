@@ -935,3 +935,76 @@ class Program{
   | ReadAllText() | Reads the content of a file |
   | Replace() | Replaces the content of one file by content of another file|
   | WriteAllText() | Creates a new file and writes the content into it if the file already exists then overwrites them |
+
+Example: Reading and writing a file.
+
+```csharp
+using System.IO;
+string text = "Hello World!!!!";
+File.WriteAllText("fileName.txt", text);
+string myText = File.ReadAllText("fileName.txt");
+Console.WriteLine(myText);
+// Output=> Hello World!!!!
+```
+
+---
+
+## C# Exceptions
+
+- C# try and catch
+- The try statement allows you to define a block of code to be tested for errors while it is being executed.
+- The catch statement allows you to define a block of code to be executed, if an error occurs in the try block.
+
+```csharp
+try{
+
+}catch(Exception e){
+
+}
+```
+
+Example
+
+```csharp
+try{
+   int[] myNums = {1,2,3};
+   Console.WriteLine(myNums[10]);
+}catch(Exception e){
+   Console.WriteLine(e.message);
+}
+```
+
+- The finally statement lets you execute code, after try...catch, regardless of the result.
+  Example:
+
+```csharp
+try{
+   int[] myNums = {1,2,3};
+   Console.WriteLine(myNums[10]);
+}catch(Exception e){
+   Console.WriteLine(e.message);
+}finally{
+   Console.WriteLine("The try catch block has been executed successfully!")
+}
+```
+
+- The throw statement allows you to create a custom error.
+
+```csharp
+static void checkAge(int age)
+{
+  if (age < 18)
+  {
+    throw new ArithmeticException("Access denied - You must be at least 18 years old.");
+  }
+  else
+  {
+    Console.WriteLine("Access granted - You are old enough!");
+  }
+}
+
+static void Main(string[] args)
+{
+  checkAge(15);
+}
+```
