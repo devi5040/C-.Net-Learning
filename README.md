@@ -844,3 +844,94 @@ class Program {
 ```
 
 ---
+
+## C# Enums
+
+- An enum is a special class that represents a group of constants.
+- To create an enum use the keyword 'enum'.
+  Example:
+
+```csharp
+class Program{
+   enum Level{
+      Low,
+      Medium,
+      High
+   }
+   static void Main(string[] args){
+      Level myVar = Level.Medium;
+      Console.WriteLine(myVar);
+   }
+}
+```
+
+### Enum values
+
+- By default the enum first item will have value 0, next item will have value 1 and so on.
+- If we assign a value to any item the upcoming values will be updated accordingly.
+- To get the integer value from an item, you must explicitly convert the item to an int.
+  Example
+
+```csharp
+class Program{
+   enum Months{
+      January, // 0
+      February, // 1
+      March, // 2
+      April, // 3
+      May=6, // 6
+      June, // 7
+      July, //8
+   }
+   static void Main(string[] args){
+      Level month = (int) Level.March;
+      Console.WriteLine(month);
+   }
+}
+// Output => 2
+```
+
+- enum in a switch statement
+
+```csharp
+class Program{
+   enum Level{
+      Low,
+      Medium,
+      High
+   }
+
+   static void Main(string[] args){
+      Level myVar = Level.Medium;
+      switch(myVar){
+        case Level.Low:
+            Console.WriteLine("The level is Low");
+            break;
+         case Level.Medium:
+            Console.WriteLine("The level is medium");
+            break;
+         case Level.High:
+            Console.WriteLine("The level is high");
+            break;
+      }
+   }
+}
+// Output => The level is medium
+```
+
+---
+
+## Working with Files
+
+- The Files class from System.IO namespace allows us to work with files.
+- File Methods in C#
+  | Method | Description |
+  |--------|-------------|
+  |AppendText()|Appends Text at the end of the file |
+  | Copy() | Copies a file |
+  | Create() | Creates or overwrites a file|
+  | Delete() | Deletes a file |
+  | Exists() | Tests whether a file exists or not |
+  | ReadAllText() | Reads the content of a file |
+  | Replace() | Replaces the content of one file by content of another file|
+  | WriteAllText() | Creates a new file and writes the content into it if the file already exists then overwrites them |
