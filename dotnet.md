@@ -76,3 +76,103 @@ public class UsersController : ControllerBase
 > ASP.NET automatically injects it.
 
 ---
+
+## 3. Controllers
+
+- Controllers handle the incoming request.
+- They receive request, execute logic, return response.
+- Example
+
+```csharp
+[ApiController]
+[Route('api/[controller]')]
+public class UserController:ControllerBase
+{
+    [HttpGet]
+    public IActionResult GetUsers(){
+        return Ok(new[] {'Devi','Rai'})
+    }
+}
+```
+
+- Attributes
+  | Attribute | Description |
+  |-----------|-------------|
+  | [ApiController] | Enables API Features |
+  | [Route] | Defines URL |
+  | [HttpGet] | Get request |
+  | [HttpPost] | Post request |
+  | [HttpPut] | Put request |
+  | [HttpDelete] | Delete request |
+  | [FromBody] | Read JSON body |
+
+---
+
+## 4. Routing
+
+- Routing maps URL to controller action
+
+1. Conventional Routing
+
+```csharp
+app.MapControllerRoute(
+name:'default',
+pattern:"{controler=Home}/{action=Index}/{id?}"
+);
+```
+
+2. Attribute Routing
+
+```csharp
+[Route('api/users')]
+public class UserController:ControllerBase
+{
+    [HttpGet("{id}")]
+    public IActionResult GetUser(int id){
+        return Ok($"User {id}")
+    }
+}
+```
+
+---
+
+## Production Architecture
+
+```scss
+Controller
+    |
+Services(Business Logic)
+    |
+Repository (Database)
+    |
+DbContext
+```
+
+---
+
+## Web APIs
+
+- A web API is an HTTP service that exposes endpoints returning data.
+
+#### Web API Example:
+
+```csharp
+[ApiController]
+[Route('api/[controller]')]
+public class UserController:ControllerBase
+{
+    [HttpGet]
+    public IActionResult GetUsers(){
+        var users = new List<String>{'Devi','Rai'}
+        return Ok(users);
+    }
+}
+```
+
+- Response
+
+```json
+["Devi", "Rai"]
+```
+
+---
