@@ -176,3 +176,291 @@ public class UserController:ControllerBase
 ```
 
 ---
+
+### Swagger/OpenAPI
+
+- It automatically generates API documentation
+- Why Swagger?
+  - Interactive testing UI
+  - Auto Documentation
+  - Client SDK generation
+  - Shows request/response models
+
+**Enabling Swagger in ASP.NET Core**
+
+- In Program.cs
+
+```csharp
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+```
+
+- Then visit - [Swagger API Docs]('http://localhost:5001/swagger')
+
+---
+
+### JSON Handling in ASP.NET Core
+
+- ASP.NET Core uses System.Text.Json by default.
+- **Serialization**
+
+```csharp
+    // Automatic conversion happens
+  return Ok(user);
+```
+
+- **Custom Json Settings**
+
+```csharp
+builder.Services.AddControllers().
+    AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
+```
+
+- **Ignore Properties**
+
+```csharp
+[JSONIgnore]
+public string Password{get;set   }
+```
+
+---
+
+### Validation and DTO's
+
+- DTO - Data Transfer Object
+- Used to
+  - Control what data enters API.
+  - Prevent exposing database models
+  - Improves security
+  - Control validation
+
+```csharp
+public class CreateUserDTO
+{
+    [Required]
+    public string Name {get; set;}
+
+    [EmailAddress]
+    public string Email {get;set;}
+}
+```
+
+**Built in Validation attributes**
+|-----------|---------|
+| Attribute | Purpose |
+|-----------|---------|
+| [Required] | Field must exist |
+| [StringLength] | Max length |
+| [EmailAddress] | Valid Email |
+| [Range] | Numeric Range |
+| [MinLength] | Minimum Length |
+
+**Controller with Validation**
+
+```csharp
+[HttpPost]
+public IActionResult CreateUser([FromBody] CreateUserDTO dto)
+{
+    if(!ModelState.IsValid)
+        return BadRequest(ModelState);
+    return Ok('User Created')
+}
+```
+
+> Auto Validation
+>
+> We can use [ApiController] for auto validation
+
+- It will do the following
+  - Validates DTO
+  - Returns 400 if invalid
+  - We don't need ModelState check
+
+**Production Flow**
+
+```pgsql
+Client
+↓
+Controller
+↓
+DTO Validation
+↓
+Service
+↓
+Repository
+↓
+Database
+↓
+Return DTO (safe version)
+```
+
+---
+
+### SQL server vs PostgreSQL
+
+#### 1. SQL Server
+
+- Tight integration with .NET
+- Strong tooling (SSMS)
+- Enterprise friendly
+- Great for Windows environment
+
+#### 2. PostgreSQL
+
+- Open source
+- Highly extensible
+- Very powerful indexing
+- Great JSON support
+- Popular in startups and cloud
+
+---
+
+### Entity Framework Core (ORM)
+
+ORM = Object Relational Mapper
+
+- Install EF Core
+- For Mysql
+
+```pgsql
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+```
+
+- For PostgreSQL
+
+```pgsql
+dotnet add package Npgsql.EntityFrameworkCore.PostgreSqQL
+```
+
+---
+
+#### Creating DbContext
+
+```csharp
+public class AppDbContext: DbContext
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options):base(options){}
+
+    public DbSet<User> Users{get;set;}
+}
+```
+
+- Configure in Program.cs
+  - For SQL server
+
+  ```csharp
+    builder.Services.AddDbContext<AppDbContext>(options=>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    ))
+  ```
+
+  - For PostgreSQL
+
+  ```csharp
+    builder.Services.AddDbContext<AppDbContext>(options=>
+    options.UseNpgsql(
+        connectionString
+    ))
+  ```
+
+---
+
+## Working with EF Core
+
+1. Entity Model
+
+```csharp
+public class User
+{
+    public int Id {get; set;}
+    public string Name {get; set;}
+    public string Email {get; set;}
+}
+```
+
+2. Migrations
+
+```csharp
+// Add Migration
+dotnet ef migrations add InitialCreate
+
+// Update db
+dotnet ef database update
+```
+
+3. Queries with EFCore
+
+- Insert Data
+
+```csharp
+var user = new User{
+    Name="Devi",
+    Email="dpraidola@gmail.com"
+};
+
+_context.Users.Add(user);
+await _context.SaveChangesAsync();
+```
+
+- Get All Users
+
+```csharp
+var users = await _context.Users.ToListAsync();
+```
+
+- Filter Data (LINQ)
+
+```csharp
+var adults = await _context.Users.where(u=>u.Age >= 18).ToListAsync();
+```
+
+- Get by ID
+
+```csharp
+var user = await _context.Users.FindAsync(id)
+```
+
+- Update
+
+```csharp
+user.Name = 'updated';
+await _context.SaveChangesAsync()
+```
+
+- Delete
+
+```csharp
+_context.Users.remove(user);
+await _context.SaveChangesAsync()
+```
+
+4. Advanced Queries
+
+- Include Relationships
+
+```csharp
+var orders = await _context.Orders.Include(o=>o.User).ToListAsync();
+```
+
+- Raw SQL
+
+```csharp
+var users = _context.Users.FromSqlRaw("SELECT * FROM Users WHERE Age > 18").ToList();
+```
+
+**Best Practices**
+
+- Always use async methods
+- Use DTOs instead of returning entities
+- Use Migrations
+- Keep connection string in appsettings.json
+- Use proper indexing DB
+- Use transactions for critical operations
