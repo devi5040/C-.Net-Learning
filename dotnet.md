@@ -464,3 +464,70 @@ var users = _context.Users.FromSqlRaw("SELECT * FROM Users WHERE Age > 18").ToLi
 - Keep connection string in appsettings.json
 - Use proper indexing DB
 - Use transactions for critical operations
+
+---
+
+### Task
+
+- Task represents an operation that will complete in the future.
+- Types of Tasks:
+  1. Task : No retrun value.
+  2. Task<T> : Returns value.
+  3. ValueTask<T> : Optimized for performance cases.
+- Basic Example
+
+```csharp
+public async Task<string> GetDataAsync(){
+    await Task.Delay(2000);
+    return "Data Loaded"
+}
+```
+
+---
+
+### Thread pool
+
+- ASP .NET Core uses:
+  - Thread Pool
+  - Non blocking I/O
+  - Event driven model
+
+#### When not to use Async operations
+
+- CPU bound operations
+- Simple in memory calculations
+
+#### Async vs Parallel
+
+| Async                | Parallel                   |
+| -------------------- | -------------------------- |
+| Non blocking I/O     | Multi Core CPU Work        |
+| Improves Scalability | Improves speed of CPU work |
+
+### Multiple async calls
+
+```csharp
+var task1 = _service.GetUsersAsync();
+var task2 = _service.GetOrdersAsync();
+
+await Task.WhenAll(task1, task2)
+```
+
+### Best practices for controllers
+
+- Always return Task<IActionResult>
+- Always use async EF methods(ToListAsync, FirstOrDefaultAsync)
+- Never block with .Result
+- Use await all the way down
+- Keep controller thin logic in service.
+
+### Cancellation Token
+
+- Gracefully stops an asynchronous operation.
+
+### CofigureAwait
+
+### Deadlocks
+
+- Deadlock happens when:
+  > Thread waits for something that waits for the same thread.
