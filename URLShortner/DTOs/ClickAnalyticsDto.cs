@@ -7,7 +7,8 @@ public class ClickAnalyticsDto
     public int TotalClicks { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? ExpiresAt { get; set; }
-    public List<ClickEventDto> ClickEvents { get; set; } = new();
+
+    public List<ClickEventDto> RecentClicks { get; set; } = new();
     public Dictionary<string, int> ClicksByCountry { get; set; } = new();
     public Dictionary<string, int> ClicksByDate { get; set; } = new();
 }
