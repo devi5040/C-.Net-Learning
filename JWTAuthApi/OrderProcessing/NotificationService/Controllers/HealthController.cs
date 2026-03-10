@@ -1,0 +1,12 @@
+using Microsoft.AspNetCore.Mvc;
+
+namespace NotificationService.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class HealthController : ControllerBase
+{
+    [HttpGet]
+    public IActionResult Get() => Ok(new { Status = "Notification service is running" });
+}
+
