@@ -1,0 +1,1805 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OmniChannel Architecture — Interactive Learning</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0c10;
+        --surface: #111318;
+        --surface2: #1a1d24;
+        --border: #2a2d36;
+        --text: #e8eaf0;
+        --muted: #6b7280;
+        --sms: #f59e0b;
+        --email: #3b82f6;
+        --voice: #10b981;
+        --webchat: #8b5cf6;
+        --whatsapp: #22c55e;
+        --adapter: #f97316;
+        --queue: #ec4899;
+        --orchestrator: #06b6d4;
+        --services: #a78bfa;
+        --accent: #f59e0b;
+        --mono: "JetBrains Mono", monospace;
+        --display: "Syne", sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--mono);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* ── Header ── */
+      header {
+        padding: 2rem 3rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        position: sticky;
+        top: 0;
+        background: rgba(10, 12, 16, 0.95);
+        backdrop-filter: blur(12px);
+        z-index: 100;
+      }
+      header h1 {
+        font-family: var(--display);
+        font-size: 1.3rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--text);
+      }
+      header h1 span {
+        color: var(--accent);
+      }
+      .badge {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--accent);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      /* ── Layout ── */
+      .app {
+        display: grid;
+        grid-template-columns: 280px 1fr 360px;
+        min-height: calc(100vh - 69px);
+      }
+
+      /* ── Sidebar (layer nav) ── */
+      .sidebar {
+        border-right: 1px solid var(--border);
+        padding: 1.5rem 0;
+        position: sticky;
+        top: 69px;
+        height: calc(100vh - 69px);
+        overflow-y: auto;
+      }
+      .sidebar-title {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--muted);
+        padding: 0 1.5rem;
+        margin-bottom: 0.75rem;
+      }
+      .layer-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.65rem 1.5rem;
+        cursor: pointer;
+        border: none;
+        background: none;
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        width: 100%;
+        text-align: left;
+        transition: all 0.15s;
+        border-left: 2px solid transparent;
+      }
+      .layer-btn:hover {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .layer-btn.active {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.05);
+        border-left-color: var(--accent);
+      }
+      .layer-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .layer-btn .arrow {
+        margin-left: auto;
+        opacity: 0;
+        transition: opacity 0.15s;
+        font-size: 0.6rem;
+      }
+      .layer-btn.active .arrow {
+        opacity: 1;
+      }
+      .sidebar-sep {
+        height: 1px;
+        background: var(--border);
+        margin: 1rem 1.5rem;
+      }
+      .sim-btn {
+        margin: 1rem 1.5rem 0;
+        padding: 0.65rem 1rem;
+        background: var(--accent);
+        color: #000;
+        border: none;
+        border-radius: 6px;
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        cursor: pointer;
+        width: calc(100% - 3rem);
+        letter-spacing: 0.05em;
+        transition: all 0.15s;
+      }
+      .sim-btn:hover {
+        background: #fbbf24;
+        transform: translateY(-1px);
+      }
+      .sim-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* ── Main Content ── */
+      .main {
+        overflow-y: auto;
+        padding: 2rem 2.5rem;
+      }
+
+      /* ── Architecture Diagram ── */
+      .arch-diagram {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        margin-bottom: 2rem;
+      }
+      .arch-layer {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 0;
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+      .arch-layer:hover {
+        border-color: rgba(245, 158, 11, 0.4);
+      }
+      .arch-layer.active-layer {
+        border-color: var(--accent);
+        box-shadow:
+          0 0 0 1px rgba(245, 158, 11, 0.2),
+          0 8px 32px rgba(0, 0, 0, 0.4);
+      }
+      .arch-layer-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        background: var(--surface);
+      }
+      .layer-tag {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-weight: 700;
+      }
+      .arch-layer-body {
+        padding: 0.75rem 1rem 1rem;
+        background: var(--surface2);
+        display: none;
+      }
+      .arch-layer.active-layer .arch-layer-body {
+        display: block;
+      }
+      .channel-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .chip {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .chip:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.2);
+      }
+      .chip-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+
+      /* ── Arrow connectors ── */
+      .arch-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.3rem 0;
+        color: var(--muted);
+        font-size: 0.65rem;
+        gap: 0.5rem;
+      }
+      .arch-arrow::before,
+      .arch-arrow::after {
+        content: "";
+        height: 1px;
+        background: var(--border);
+        flex: 1;
+      }
+
+      /* ── Live message flow panel ── */
+      .flow-title {
+        font-family: var(--display);
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text);
+      }
+      .flow-title span {
+        color: var(--accent);
+      }
+      .flow-container {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        min-height: 200px;
+      }
+      .flow-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1rem;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+      }
+      .flow-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .flow-label {
+        font-size: 0.65rem;
+        color: var(--muted);
+      }
+      .flow-body {
+        padding: 1rem;
+        font-size: 0.72rem;
+        line-height: 1.7;
+        min-height: 150px;
+        max-height: 350px;
+        overflow-y: auto;
+      }
+      .flow-step {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 0.4rem;
+        opacity: 0;
+        transform: translateX(-8px);
+        animation: stepIn 0.3s forwards;
+      }
+      @keyframes stepIn {
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      .step-icon {
+        flex-shrink: 0;
+      }
+      .step-text {
+        color: var(--text);
+      }
+      .step-text .label {
+        font-weight: 500;
+      }
+      .step-text .detail {
+        color: var(--muted);
+        font-size: 0.68rem;
+      }
+
+      /* ── Content panel (right) ── */
+      .panel {
+        border-left: 1px solid var(--border);
+        overflow-y: auto;
+        padding: 1.5rem;
+        position: sticky;
+        top: 69px;
+        height: calc(100vh - 69px);
+      }
+      .panel-section {
+        margin-bottom: 2rem;
+      }
+      .panel-label {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--muted);
+        margin-bottom: 0.75rem;
+      }
+      .panel h2 {
+        font-family: var(--display);
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        color: var(--text);
+      }
+      .panel p {
+        font-size: 0.72rem;
+        line-height: 1.8;
+        color: #9ca3af;
+        margin-bottom: 0.75rem;
+      }
+
+      /* ── Code block ── */
+      .code-block {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+      }
+      .code-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.4rem 0.75rem;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+      }
+      .code-lang {
+        font-size: 0.6rem;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      .code-body {
+        padding: 0.9rem 1rem;
+        font-size: 0.68rem;
+        line-height: 1.7;
+        overflow-x: auto;
+        white-space: pre;
+        color: #d1d5db;
+      }
+      .kw {
+        color: #93c5fd;
+      }
+      .str {
+        color: #86efac;
+      }
+      .cm {
+        color: #4b5563;
+        font-style: italic;
+      }
+      .type {
+        color: #f9a8d4;
+      }
+      .prop {
+        color: #fde68a;
+      }
+      .num {
+        color: #fda4af;
+      }
+
+      /* ── Concept cards ── */
+      .concept-card {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.85rem 1rem;
+        margin-bottom: 0.6rem;
+        font-size: 0.7rem;
+        line-height: 1.7;
+        color: #9ca3af;
+      }
+      .concept-card strong {
+        display: block;
+        color: var(--text);
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        font-size: 0.72rem;
+      }
+
+      /* ── Channel input ── */
+      .send-form {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .send-form label {
+        display: block;
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin-bottom: 0.4rem;
+      }
+      .channel-select {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 0.75rem;
+      }
+      .ch-opt {
+        padding: 0.3rem 0.65rem;
+        border-radius: 20px;
+        font-family: var(--mono);
+        font-size: 0.65rem;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--muted);
+        transition: all 0.15s;
+      }
+      .ch-opt.selected {
+        color: #000;
+        font-weight: 700;
+      }
+      .msg-input {
+        width: 100%;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        padding: 0.6rem 0.8rem;
+        resize: none;
+        margin-bottom: 0.6rem;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .msg-input:focus {
+        border-color: rgba(245, 158, 11, 0.5);
+      }
+      .send-btn {
+        width: 100%;
+        padding: 0.55rem;
+        background: var(--accent);
+        color: #000;
+        border: none;
+        border-radius: 6px;
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s;
+        letter-spacing: 0.05em;
+      }
+      .send-btn:hover {
+        background: #fbbf24;
+      }
+
+      /* ── Unified message viewer ── */
+      .msg-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+        font-size: 0.7rem;
+        line-height: 1.7;
+      }
+      .msg-field {
+        display: flex;
+        margin-bottom: 0.35rem;
+        gap: 0.5rem;
+      }
+      .msg-key {
+        color: var(--muted);
+        min-width: 100px;
+        font-size: 0.65rem;
+      }
+      .msg-val {
+        color: var(--text);
+        font-weight: 500;
+      }
+
+      /* ── Stats bar ── */
+      .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+      }
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.75rem;
+        text-align: center;
+      }
+      .stat-num {
+        font-family: var(--display);
+        font-size: 1.4rem;
+        font-weight: 800;
+        display: block;
+        color: var(--accent);
+      }
+      .stat-label {
+        font-size: 0.6rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      /* ── Scrollbar ── */
+      ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
+      }
+
+      /* ── Pulse animation for active processing ── */
+      @keyframes pulse-glow {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
+        }
+      }
+      .processing {
+        animation: pulse-glow 1.5s infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1><span>OmniChannel</span> Architecture</h1>
+      <span class="badge">Interactive Learning</span>
+      <span
+        class="badge"
+        style="
+          background: rgba(6, 182, 212, 0.1);
+          color: #06b6d4;
+          border-color: rgba(6, 182, 212, 0.3);
+        "
+        >.NET Core</span
+      >
+    </header>
+
+    <div class="app">
+      <!-- ── Sidebar ── -->
+      <aside class="sidebar">
+        <div class="sidebar-title">Architecture Layers</div>
+
+        <button
+          class="layer-btn active"
+          onclick="selectLayer('channels')"
+          id="btn-channels"
+        >
+          <span class="layer-dot" style="background: #f59e0b"></span>
+          01 — Channels
+          <span class="arrow">▶</span>
+        </button>
+        <button
+          class="layer-btn"
+          onclick="selectLayer('adapters')"
+          id="btn-adapters"
+        >
+          <span class="layer-dot" style="background: #f97316"></span>
+          02 — Channel Adapters
+          <span class="arrow">▶</span>
+        </button>
+        <button
+          class="layer-btn"
+          onclick="selectLayer('unified')"
+          id="btn-unified"
+        >
+          <span class="layer-dot" style="background: #ec4899"></span>
+          03 — Unified Message Model
+          <span class="arrow">▶</span>
+        </button>
+        <button class="layer-btn" onclick="selectLayer('queue')" id="btn-queue">
+          <span class="layer-dot" style="background: #06b6d4"></span>
+          04 — Message Queue
+          <span class="arrow">▶</span>
+        </button>
+        <button
+          class="layer-btn"
+          onclick="selectLayer('orchestrator')"
+          id="btn-orchestrator"
+        >
+          <span class="layer-dot" style="background: #8b5cf6"></span>
+          05 — Orchestrator
+          <span class="arrow">▶</span>
+        </button>
+        <button
+          class="layer-btn"
+          onclick="selectLayer('services')"
+          id="btn-services"
+        >
+          <span class="layer-dot" style="background: #10b981"></span>
+          06 — Business Services
+          <span class="arrow">▶</span>
+        </button>
+
+        <div class="sidebar-sep"></div>
+
+        <div class="sidebar-title">Live Simulation</div>
+        <button class="sim-btn" id="simBtn" onclick="runFullSimulation()">
+          ▶ Run Full Flow
+        </button>
+
+        <div
+          style="
+            padding: 1rem 1.5rem 0;
+            font-size: 0.65rem;
+            color: var(--muted);
+            line-height: 1.6;
+          "
+        >
+          Send a message through all 6 layers and watch the trace appear in real
+          time.
+        </div>
+      </aside>
+
+      <!-- ── Main ── -->
+      <main class="main">
+        <div class="stats-bar">
+          <div class="stat-card">
+            <span class="stat-num" id="statMessages">0</span>
+            <span class="stat-label">Messages Sent</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-num" id="statProcessed">0</span>
+            <span class="stat-label">Processed</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-num" id="statChannels">5</span>
+            <span class="stat-label">Channels Active</span>
+          </div>
+        </div>
+
+        <!-- Architecture Diagram -->
+        <div class="arch-diagram" id="archDiagram">
+          <div
+            class="arch-layer active-layer"
+            id="layer-channels"
+            onclick="selectLayer('channels')"
+          >
+            <div class="arch-layer-header">
+              <span
+                class="layer-tag"
+                style="background: rgba(245, 158, 11, 0.15); color: #f59e0b"
+                >01</span
+              >
+              <span style="font-size: 0.78rem; font-weight: 600">Channels</span>
+              <span
+                style="
+                  margin-left: auto;
+                  font-size: 0.65rem;
+                  color: var(--muted);
+                "
+                >Entry Points</span
+              >
+            </div>
+            <div class="arch-layer-body">
+              <div class="channel-chips">
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(245, 158, 11, 0.12);
+                    color: #f59e0b;
+                    border-color: rgba(245, 158, 11, 0.3);
+                  "
+                  onclick="selectChannelDemo('sms', event)"
+                >
+                  <span class="chip-dot" style="background: #f59e0b"></span> SMS
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(59, 130, 246, 0.12);
+                    color: #3b82f6;
+                    border-color: rgba(59, 130, 246, 0.3);
+                  "
+                  onclick="selectChannelDemo('email', event)"
+                >
+                  <span class="chip-dot" style="background: #3b82f6"></span>
+                  Email
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(16, 185, 129, 0.12);
+                    color: #10b981;
+                    border-color: rgba(16, 185, 129, 0.3);
+                  "
+                  onclick="selectChannelDemo('voice', event)"
+                >
+                  <span class="chip-dot" style="background: #10b981"></span>
+                  Voice
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(139, 92, 246, 0.12);
+                    color: #8b5cf6;
+                    border-color: rgba(139, 92, 246, 0.3);
+                  "
+                  onclick="selectChannelDemo('webchat', event)"
+                >
+                  <span class="chip-dot" style="background: #8b5cf6"></span> Web
+                  Chat
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(34, 197, 94, 0.12);
+                    color: #22c55e;
+                    border-color: rgba(34, 197, 94, 0.3);
+                  "
+                  onclick="selectChannelDemo('whatsapp', event)"
+                >
+                  <span class="chip-dot" style="background: #22c55e"></span>
+                  WhatsApp
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-arrow">↓ raw channel messages</div>
+
+          <div
+            class="arch-layer"
+            id="layer-adapters"
+            onclick="selectLayer('adapters')"
+          >
+            <div class="arch-layer-header">
+              <span
+                class="layer-tag"
+                style="background: rgba(249, 115, 22, 0.15); color: #f97316"
+                >02</span
+              >
+              <span style="font-size: 0.78rem; font-weight: 600"
+                >Channel Adapters</span
+              >
+              <span
+                style="
+                  margin-left: auto;
+                  font-size: 0.65rem;
+                  color: var(--muted);
+                "
+                >Normalisation</span
+              >
+            </div>
+            <div class="arch-layer-body">
+              <div class="channel-chips">
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(249, 115, 22, 0.1);
+                    color: #f97316;
+                    border-color: rgba(249, 115, 22, 0.25);
+                  "
+                >
+                  SmsAdapter
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(249, 115, 22, 0.1);
+                    color: #f97316;
+                    border-color: rgba(249, 115, 22, 0.25);
+                  "
+                >
+                  EmailAdapter
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(249, 115, 22, 0.1);
+                    color: #f97316;
+                    border-color: rgba(249, 115, 22, 0.25);
+                  "
+                >
+                  VoiceAdapter
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(249, 115, 22, 0.1);
+                    color: #f97316;
+                    border-color: rgba(249, 115, 22, 0.25);
+                  "
+                >
+                  WebChatAdapter
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(249, 115, 22, 0.1);
+                    color: #f97316;
+                    border-color: rgba(249, 115, 22, 0.25);
+                  "
+                >
+                  WhatsAppAdapter
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-arrow">↓ IChannelAdapter.Normalise()</div>
+
+          <div
+            class="arch-layer"
+            id="layer-unified"
+            onclick="selectLayer('unified')"
+          >
+            <div class="arch-layer-header">
+              <span
+                class="layer-tag"
+                style="background: rgba(236, 72, 153, 0.15); color: #ec4899"
+                >03</span
+              >
+              <span style="font-size: 0.78rem; font-weight: 600"
+                >Unified Message Model</span
+              >
+              <span
+                style="
+                  margin-left: auto;
+                  font-size: 0.65rem;
+                  color: var(--muted);
+                "
+                >Domain Object</span
+              >
+            </div>
+            <div class="arch-layer-body">
+              <div class="channel-chips">
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(236, 72, 153, 0.1);
+                    color: #ec4899;
+                    border-color: rgba(236, 72, 153, 0.25);
+                  "
+                >
+                  MessageId
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(236, 72, 153, 0.1);
+                    color: #ec4899;
+                    border-color: rgba(236, 72, 153, 0.25);
+                  "
+                >
+                  Channel
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(236, 72, 153, 0.1);
+                    color: #ec4899;
+                    border-color: rgba(236, 72, 153, 0.25);
+                  "
+                >
+                  SenderId
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(236, 72, 153, 0.1);
+                    color: #ec4899;
+                    border-color: rgba(236, 72, 153, 0.25);
+                  "
+                >
+                  Body
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(236, 72, 153, 0.1);
+                    color: #ec4899;
+                    border-color: rgba(236, 72, 153, 0.25);
+                  "
+                >
+                  Intent
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(236, 72, 153, 0.1);
+                    color: #ec4899;
+                    border-color: rgba(236, 72, 153, 0.25);
+                  "
+                >
+                  Metadata
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-arrow">↓ enqueue UnifiedMessage</div>
+
+          <div
+            class="arch-layer"
+            id="layer-queue"
+            onclick="selectLayer('queue')"
+          >
+            <div class="arch-layer-header">
+              <span
+                class="layer-tag"
+                style="background: rgba(6, 182, 212, 0.15); color: #06b6d4"
+                >04</span
+              >
+              <span style="font-size: 0.78rem; font-weight: 600"
+                >Message Queue</span
+              >
+              <span
+                style="
+                  margin-left: auto;
+                  font-size: 0.65rem;
+                  color: var(--muted);
+                "
+                >Async Decoupling</span
+              >
+            </div>
+            <div class="arch-layer-body">
+              <div class="channel-chips">
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(6, 182, 212, 0.1);
+                    color: #06b6d4;
+                    border-color: rgba(6, 182, 212, 0.25);
+                  "
+                >
+                  System.Threading.Channels
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(6, 182, 212, 0.1);
+                    color: #06b6d4;
+                    border-color: rgba(6, 182, 212, 0.25);
+                  "
+                >
+                  BoundedChannel&lt;UnifiedMessage&gt;
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(6, 182, 212, 0.1);
+                    color: #06b6d4;
+                    border-color: rgba(6, 182, 212, 0.25);
+                  "
+                >
+                  Backpressure
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-arrow">↓ DequeueAsync()</div>
+
+          <div
+            class="arch-layer"
+            id="layer-orchestrator"
+            onclick="selectLayer('orchestrator')"
+          >
+            <div class="arch-layer-header">
+              <span
+                class="layer-tag"
+                style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6"
+                >05</span
+              >
+              <span style="font-size: 0.78rem; font-weight: 600"
+                >Orchestrator</span
+              >
+              <span
+                style="
+                  margin-left: auto;
+                  font-size: 0.65rem;
+                  color: var(--muted);
+                "
+                >BackgroundService</span
+              >
+            </div>
+            <div class="arch-layer-body">
+              <div class="channel-chips">
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(139, 92, 246, 0.1);
+                    color: #8b5cf6;
+                    border-color: rgba(139, 92, 246, 0.25);
+                  "
+                >
+                  IntentClassifier
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(139, 92, 246, 0.1);
+                    color: #8b5cf6;
+                    border-color: rgba(139, 92, 246, 0.25);
+                  "
+                >
+                  WorkflowRouter
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(139, 92, 246, 0.1);
+                    color: #8b5cf6;
+                    border-color: rgba(139, 92, 246, 0.25);
+                  "
+                >
+                  ContextEnricher
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-arrow">↓ route to service</div>
+
+          <div
+            class="arch-layer"
+            id="layer-services"
+            onclick="selectLayer('services')"
+          >
+            <div class="arch-layer-header">
+              <span
+                class="layer-tag"
+                style="background: rgba(16, 185, 129, 0.15); color: #10b981"
+                >06</span
+              >
+              <span style="font-size: 0.78rem; font-weight: 600"
+                >Business Services</span
+              >
+              <span
+                style="
+                  margin-left: auto;
+                  font-size: 0.65rem;
+                  color: var(--muted);
+                "
+                >Domain Logic</span
+              >
+            </div>
+            <div class="arch-layer-body">
+              <div class="channel-chips">
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(16, 185, 129, 0.1);
+                    color: #10b981;
+                    border-color: rgba(16, 185, 129, 0.25);
+                  "
+                >
+                  SupportService
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(16, 185, 129, 0.1);
+                    color: #10b981;
+                    border-color: rgba(16, 185, 129, 0.25);
+                  "
+                >
+                  OrderService
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(16, 185, 129, 0.1);
+                    color: #10b981;
+                    border-color: rgba(16, 185, 129, 0.25);
+                  "
+                >
+                  BillingService
+                </div>
+                <div
+                  class="chip"
+                  style="
+                    background: rgba(16, 185, 129, 0.1);
+                    color: #10b981;
+                    border-color: rgba(16, 185, 129, 0.25);
+                  "
+                >
+                  KnowledgeBase
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Flow -->
+        <div class="flow-title">Live Message <span>Trace</span></div>
+        <div class="flow-container">
+          <div class="flow-header">
+            <div
+              class="flow-dot"
+              id="flowDot"
+              style="background: #2a2d36"
+            ></div>
+            <span class="flow-label" id="flowLabel"
+              >Waiting for simulation...</span
+            >
+          </div>
+          <div class="flow-body" id="flowBody">
+            <div
+              style="color: var(--muted); font-size: 0.7rem; padding: 0.5rem 0"
+            >
+              Click
+              <strong style="color: var(--accent)">▶ Run Full Flow</strong> in
+              the sidebar, or click any channel chip above to see a message flow
+              through all 6 layers.
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- ── Right Panel ── -->
+      <aside class="panel" id="rightPanel">
+        <!-- Content injected by JS -->
+      </aside>
+    </div>
+
+    <script>
+      // ═══════════════════════════════════════════════════════════
+      // DATA — layer definitions with explanations and code
+      // ═══════════════════════════════════════════════════════════
+
+      const layers = {
+        channels: {
+          title: "Channels",
+          color: "#f59e0b",
+          tag: "01",
+          description:
+            "Channels are the <strong>entry points</strong> — the communication mediums that customers use to contact you. Each has a completely different wire format and protocol.",
+          whyItMatters:
+            "Without a channel abstraction, your business logic would need to know about HTTP webhooks, SMTP, SIP, WebSocket, and WhatsApp Business API all at once.",
+          concepts: [
+            {
+              title: "SMS",
+              body: "Arrives via Twilio/Vonage webhook as HTTP POST with fields: From, To, Body. Max 160 chars per segment.",
+            },
+            {
+              title: "Email",
+              body: "Delivered via SMTP or SendGrid Inbound Parse webhook. Has subject, HTML body, attachments, and threading headers.",
+            },
+            {
+              title: "Voice",
+              body: "Twilio calls your webhook. You respond with TwiML XML instructions. Transcription is async via another callback.",
+            },
+            {
+              title: "Web Chat",
+              body: "Browser opens a WebSocket. Messages are JSON frames. Presence (online/away) is a first-class concept.",
+            },
+            {
+              title: "WhatsApp",
+              body: "WhatsApp Business API via Meta or Twilio. Structured templates required for outbound, free-form for 24h window.",
+            },
+          ],
+          code: {
+            lang: "C# — Channel Models",
+            body: `<span class="cm">// Raw inbound payloads — each channel has its own shape</span>
+
+<span class="kw">public record</span> <span class="type">SmsInbound</span>(
+    <span class="type">string</span> <span class="prop">From</span>, <span class="type">string</span> <span class="prop">To</span>,
+    <span class="type">string</span> <span class="prop">Body</span>, <span class="type">string</span> <span class="prop">MessageSid</span>
+);
+
+<span class="kw">public record</span> <span class="type">EmailInbound</span>(
+    <span class="type">string</span> <span class="prop">From</span>, <span class="type">string</span> <span class="prop">Subject</span>,
+    <span class="type">string</span> <span class="prop">HtmlBody</span>, <span class="type">string</span> <span class="prop">TextBody</span>,
+    <span class="type">List&lt;Attachment&gt;</span> <span class="prop">Attachments</span>
+);
+
+<span class="kw">public record</span> <span class="type">VoiceInbound</span>(
+    <span class="type">string</span> <span class="prop">CallSid</span>, <span class="type">string</span> <span class="prop">From</span>,
+    <span class="type">string</span>? <span class="prop">Transcription</span>, <span class="type">string</span> <span class="prop">CallStatus</span>
+);
+
+<span class="kw">public record</span> <span class="type">WebChatMessage</span>(
+    <span class="type">string</span> <span class="prop">SessionId</span>, <span class="type">string</span> <span class="prop">UserId</span>,
+    <span class="type">string</span> <span class="prop">Text</span>, <span class="type">DateTime</span> <span class="prop">Timestamp</span>
+);`,
+          },
+        },
+
+        adapters: {
+          title: "Channel Adapters",
+          color: "#f97316",
+          tag: "02",
+          description:
+            "Adapters implement the <strong>Adapter Pattern</strong>. Each one knows everything about its channel's quirks and translates raw payloads into a common interface.",
+          whyItMatters:
+            "The adapter is the only place in your codebase that knows about Twilio, SendGrid, or WebSocket frames. Everything downstream is channel-agnostic.",
+          concepts: [
+            {
+              title: "IChannelAdapter interface",
+              body: "Every adapter implements the same interface: Normalise(raw) → UnifiedMessage. The rest of the system only talks to this interface.",
+            },
+            {
+              title: "Single Responsibility",
+              body: "Each adapter has one job: translate its format. No business logic lives here. No routing. Just transformation.",
+            },
+            {
+              title: "Sender extraction",
+              body: 'A phone number, email address, and session ID are all "senders". The adapter normalises these into a consistent SenderId.',
+            },
+            {
+              title: "Media handling",
+              body: "Voice transcriptions, email attachments, and image messages all become a normalised Attachment list.",
+            },
+          ],
+          code: {
+            lang: "C# — Adapter Interface + SMS Implementation",
+            body: `<span class="kw">public interface</span> <span class="type">IChannelAdapter</span>&lt;<span class="type">TRaw</span>&gt;
+{
+    <span class="type">ChannelType</span> <span class="prop">Channel</span> { <span class="kw">get</span>; }
+    <span class="type">UnifiedMessage</span> Normalise(<span class="type">TRaw</span> raw);
+}
+
+<span class="kw">public class</span> <span class="type">SmsAdapter</span> : <span class="type">IChannelAdapter</span>&lt;<span class="type">SmsInbound</span>&gt;
+{
+    <span class="kw">public</span> <span class="type">ChannelType</span> <span class="prop">Channel</span> => <span class="type">ChannelType</span>.Sms;
+
+    <span class="kw">public</span> <span class="type">UnifiedMessage</span> Normalise(<span class="type">SmsInbound</span> raw)
+    {
+        <span class="kw">return new</span> <span class="type">UnifiedMessage</span>
+        {
+            <span class="prop">MessageId</span>   = <span class="type">Guid</span>.NewGuid(),
+            <span class="prop">Channel</span>     = <span class="type">ChannelType</span>.Sms,
+            <span class="prop">SenderId</span>    = raw.From,   <span class="cm">// +1-555-0100</span>
+            <span class="prop">Body</span>        = raw.Body,
+            <span class="prop">SourceRef</span>   = raw.MessageSid,
+            <span class="prop">ReceivedAt</span>  = <span class="type">DateTime</span>.UtcNow
+        };
+    }
+}`,
+          },
+        },
+
+        unified: {
+          title: "Unified Message Model",
+          color: "#ec4899",
+          tag: "03",
+          description:
+            "The <strong>Unified Message</strong> is your system's lingua franca — a single domain object that represents any message regardless of origin channel.",
+          whyItMatters:
+            "All downstream logic — queue, orchestrator, services — operates on UnifiedMessage. Adding a new channel (e.g. Telegram) only requires a new adapter, zero other changes.",
+          concepts: [
+            {
+              title: "Channel-agnostic",
+              body: "Once normalised, the system doesn't care if the message came from SMS or email. Same model, same processing.",
+            },
+            {
+              title: "Intent field",
+              body: 'Optionally pre-classified by the adapter or enriched by the orchestrator: "support", "order", "billing", "unknown".',
+            },
+            {
+              title: "Metadata dictionary",
+              body: "Flexible key-value bag for channel-specific extras (e.g. email subject, WhatsApp template name) without polluting the core model.",
+            },
+            {
+              title: "Correlation",
+              body: "CorrelationId links all messages in a conversation thread across multiple turns, even across channels.",
+            },
+          ],
+          code: {
+            lang: "C# — UnifiedMessage",
+            body: `<span class="kw">public class</span> <span class="type">UnifiedMessage</span>
+{
+    <span class="kw">public</span> <span class="type">Guid</span>            <span class="prop">MessageId</span>     { <span class="kw">get; init;</span> }
+    <span class="kw">public</span> <span class="type">ChannelType</span>     <span class="prop">Channel</span>       { <span class="kw">get; init;</span> }
+    <span class="kw">public</span> <span class="type">string</span>          <span class="prop">SenderId</span>      { <span class="kw">get; init;</span> } = <span class="str">""</span>;
+    <span class="kw">public</span> <span class="type">string</span>          <span class="prop">Body</span>          { <span class="kw">get; init;</span> } = <span class="str">""</span>;
+    <span class="kw">public</span> <span class="type">string</span>?         <span class="prop">Intent</span>        { <span class="kw">get; set;</span> }
+    <span class="kw">public</span> <span class="type">Guid</span>?           <span class="prop">CorrelationId</span> { <span class="kw">get; init;</span> }
+    <span class="kw">public</span> <span class="type">DateTime</span>        <span class="prop">ReceivedAt</span>    { <span class="kw">get; init;</span> }
+    <span class="kw">public</span> <span class="type">string</span>?         <span class="prop">SourceRef</span>     { <span class="kw">get; init;</span> }
+
+    <span class="cm">// Channel-specific extras without polluting the model</span>
+    <span class="kw">public</span> <span class="type">Dictionary&lt;string,object&gt;</span> <span class="prop">Metadata</span> { <span class="kw">get; init;</span> } = <span class="kw">new</span>();
+    <span class="kw">public</span> <span class="type">List&lt;Attachment&gt;</span>         <span class="prop">Attachments</span> { <span class="kw">get; init;</span> } = <span class="kw">new</span>();
+}
+
+<span class="kw">public enum</span> <span class="type">ChannelType</span>
+    { Sms, Email, Voice, WebChat, WhatsApp }`,
+          },
+        },
+
+        queue: {
+          title: "Message Queue",
+          color: "#06b6d4",
+          tag: "04",
+          description:
+            "The queue is the <strong>async buffer</strong> between message reception (fast, bursty) and message processing (slower, steady). It prevents dropped messages under load.",
+          whyItMatters:
+            "Channels can receive hundreds of messages per second. Processing involves DB reads, API calls, ML classification. The queue absorbs the spike without losing messages.",
+          concepts: [
+            {
+              title: "System.Threading.Channels",
+              body: ".NET's built-in, zero-dependency, high-performance in-process queue. No Redis needed for moderate throughput.",
+            },
+            {
+              title: "Bounded vs Unbounded",
+              body: "Bounded channels cap memory usage and apply backpressure (slow down writers). Unbounded channels can OOM under load.",
+            },
+            {
+              title: "Single producer / multiple consumer",
+              body: "Multiple adapters write to the queue concurrently. The orchestrator reads with one or more consumer workers.",
+            },
+            {
+              title: "Scale-out path",
+              body: "Swap System.Threading.Channels for RabbitMQ or Azure Service Bus by changing one registration in Program.cs. Consumers stay identical.",
+            },
+          ],
+          code: {
+            lang: "C# — MessageQueue",
+            body: `<span class="kw">public class</span> <span class="type">MessageQueue</span>
+{
+    <span class="kw">private readonly</span> <span class="type">Channel</span>&lt;<span class="type">UnifiedMessage</span>&gt; _ch =
+        <span class="type">Channel</span>.CreateBounded&lt;<span class="type">UnifiedMessage</span>&gt;(
+            <span class="kw">new</span> <span class="type">BoundedChannelOptions</span>(<span class="num">500</span>)
+            {
+                <span class="prop">FullMode</span>     = <span class="type">BoundedChannelFullMode</span>.Wait,
+                <span class="prop">SingleReader</span> = <span class="kw">false</span>,  <span class="cm">// multiple consumers OK</span>
+                <span class="prop">SingleWriter</span> = <span class="kw">false</span>   <span class="cm">// multiple adapters OK</span>
+            });
+
+    <span class="cm">// Called by adapters after normalising</span>
+    <span class="kw">public async</span> <span class="type">ValueTask</span> EnqueueAsync(
+        <span class="type">UnifiedMessage</span> msg, <span class="type">CancellationToken</span> ct)
+        => <span class="kw">await</span> _ch.Writer.WriteAsync(msg, ct);
+
+    <span class="cm">// Called by the Orchestrator worker(s)</span>
+    <span class="kw">public async</span> <span class="type">ValueTask</span>&lt;<span class="type">UnifiedMessage</span>&gt; DequeueAsync(
+        <span class="type">CancellationToken</span> ct)
+        => <span class="kw">await</span> _ch.Reader.ReadAsync(ct);
+
+    <span class="kw">public int</span> <span class="prop">Depth</span> => _ch.Reader.Count;
+}`,
+          },
+        },
+
+        orchestrator: {
+          title: "Orchestrator",
+          color: "#8b5cf6",
+          tag: "05",
+          description:
+            "The Orchestrator is a <strong>BackgroundService</strong> that reads from the queue and decides what to do with each message — classify intent, enrich context, then route to the right service.",
+          whyItMatters:
+            "Without an orchestrator you'd scatter routing logic across every service. Centralised orchestration means you can change workflows in one place.",
+          concepts: [
+            {
+              title: "BackgroundService lifecycle",
+              body: "Starts with the host, runs until cancellation. Uses IServiceScopeFactory to resolve scoped services safely within a singleton context.",
+            },
+            {
+              title: "Intent classification",
+              body: "Simple keyword matching in dev; plug in Azure Language Understanding, OpenAI function-calling, or a fine-tuned model in prod.",
+            },
+            {
+              title: "Context enrichment",
+              body: "Loads the sender's profile, conversation history, and account data before routing — so services receive a rich context, not just a raw message.",
+            },
+            {
+              title: "Idempotency",
+              body: "Track MessageId in a processed-set. If the same message arrives twice (network retry), the orchestrator skips it.",
+            },
+          ],
+          code: {
+            lang: "C# — Orchestrator BackgroundService",
+            body: `<span class="kw">public class</span> <span class="type">OrchestratorService</span> : <span class="type">BackgroundService</span>
+{
+    <span class="kw">protected override async</span> <span class="type">Task</span> ExecuteAsync(
+        <span class="type">CancellationToken</span> ct)
+    {
+        <span class="kw">await foreach</span> (<span class="kw">var</span> msg <span class="kw">in</span> _queue.ReadAllAsync(ct))
+        {
+            <span class="kw">using var</span> scope = _factory.CreateScope();
+
+            <span class="cm">// Step 1: classify intent</span>
+            msg.Intent = <span class="kw">await</span>
+                _classifier.ClassifyAsync(msg.Body, ct);
+
+            <span class="cm">// Step 2: enrich with customer context</span>
+            <span class="kw">var</span> ctx = <span class="kw">await</span>
+                _enricher.EnrichAsync(msg, ct);
+
+            <span class="cm">// Step 3: route to correct service</span>
+            <span class="kw">var</span> handler =
+                _router.Resolve(msg.Intent, scope);
+
+            <span class="kw">await</span> handler.HandleAsync(ctx, ct);
+        }
+    }
+}`,
+          },
+        },
+
+        services: {
+          title: "Business Services",
+          color: "#10b981",
+          tag: "06",
+          description:
+            "Business Services contain your <strong>domain logic</strong>. They are completely ignorant of channels, queues, and routing — they just receive a rich context object and act on it.",
+          whyItMatters:
+            "This is where the value lives. Keeping it channel-agnostic means the same SupportService handles a WhatsApp message and an email ticket identically.",
+          concepts: [
+            {
+              title: "IMessageHandler interface",
+              body: "Each service implements HandleAsync(MessageContext). The orchestrator resolves the right implementation by intent.",
+            },
+            {
+              title: "Channel-agnostic replies",
+              body: "Services call IReplyService.SendAsync(reply). The reply service looks up the original channel and dispatches accordingly.",
+            },
+            {
+              title: "SupportService",
+              body: "Matches message to open ticket, appends note, triggers SLA timer, routes to agent queue if needed.",
+            },
+            {
+              title: "OrderService",
+              body: "Parses order intent from body, validates, creates order record, fires confirmation message back through the originating channel.",
+            },
+          ],
+          code: {
+            lang: "C# — IMessageHandler + SupportService",
+            body: `<span class="kw">public interface</span> <span class="type">IMessageHandler</span>
+{
+    <span class="type">string</span> <span class="prop">Intent</span> { <span class="kw">get</span>; }  <span class="cm">// "support", "order", …</span>
+    <span class="type">Task</span> HandleAsync(
+        <span class="type">MessageContext</span> ctx,
+        <span class="type">CancellationToken</span> ct);
+}
+
+<span class="kw">public class</span> <span class="type">SupportService</span> : <span class="type">IMessageHandler</span>
+{
+    <span class="kw">public</span> <span class="type">string</span> <span class="prop">Intent</span> => <span class="str">"support"</span>;
+
+    <span class="kw">public async</span> <span class="type">Task</span> HandleAsync(
+        <span class="type">MessageContext</span> ctx, <span class="type">CancellationToken</span> ct)
+    {
+        <span class="kw">var</span> ticket = <span class="kw">await</span> _tickets
+            .FindOrCreateAsync(ctx.SenderId, ct);
+
+        ticket.AppendNote(ctx.Message.Body,
+            ctx.Message.Channel);
+
+        <span class="kw">await</span> _reply.SendAsync(
+            ctx.Message.Channel,
+            ctx.SenderId,
+            <span class="str">$"Ticket #{ticket.Id} updated."</span>, ct);
+    }
+}`,
+          },
+        },
+      };
+
+      // ═══════════════════════════════════════════════════════════
+      // SIMULATION DATA
+      // ═══════════════════════════════════════════════════════════
+
+      const channelDemos = {
+        sms: {
+          color: "#f59e0b",
+          icon: "📱",
+          label: "SMS",
+          sender: "+1-555-0142",
+          body: "Hi I need help with my order #12345",
+          intent: "support",
+          service: "SupportService",
+        },
+        email: {
+          color: "#3b82f6",
+          icon: "✉️",
+          label: "Email",
+          sender: "alice@example.com",
+          body: "Subject: Billing issue — double charged",
+          intent: "billing",
+          service: "BillingService",
+        },
+        voice: {
+          color: "#10b981",
+          icon: "📞",
+          label: "Voice",
+          sender: "+1-555-0199",
+          body: '[Transcription] "Cancel my subscription please"',
+          intent: "order",
+          service: "OrderService",
+        },
+        webchat: {
+          color: "#8b5cf6",
+          icon: "💬",
+          label: "Web Chat",
+          sender: "session:a3f7b2",
+          body: "What are your delivery options?",
+          intent: "knowledge",
+          service: "KnowledgeBase",
+        },
+        whatsapp: {
+          color: "#22c55e",
+          icon: "🟢",
+          label: "WhatsApp",
+          sender: "+44-7700-900-142",
+          body: "Order 2x Widget Pro — deliver to London",
+          intent: "order",
+          service: "OrderService",
+        },
+      };
+
+      // ═══════════════════════════════════════════════════════════
+      // LAYER SELECTION
+      // ═══════════════════════════════════════════════════════════
+
+      let currentLayer = "channels";
+
+      function selectLayer(name) {
+        // Sidebar buttons
+        document
+          .querySelectorAll(".layer-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById("btn-" + name).classList.add("active");
+
+        // Diagram layers
+        document
+          .querySelectorAll(".arch-layer")
+          .forEach((l) => l.classList.remove("active-layer"));
+        document.getElementById("layer-" + name).classList.add("active-layer");
+
+        currentLayer = name;
+        renderPanel(name);
+      }
+
+      function renderPanel(name) {
+        const data = layers[name];
+        const panel = document.getElementById("rightPanel");
+
+        panel.innerHTML = `
+    <div class="panel-section">
+      <div class="panel-label">Layer ${data.tag} — ${data.title}</div>
+      <h2 style="color:${data.color}">${data.title}</h2>
+      <p>${data.description}</p>
+      <div class="concept-card" style="border-color:${data.color}33;background:${data.color}0d;">
+        <strong style="color:${data.color}">💡 Why it matters</strong>
+        ${data.whyItMatters}
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Key Concepts</div>
+      ${data.concepts
+        .map(
+          (c) => `
+        <div class="concept-card">
+          <strong>${c.title}</strong>
+          ${c.body}
+        </div>
+      `,
+        )
+        .join("")}
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-label">Code Example</div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">${data.code.lang}</span>
+        </div>
+        <div class="code-body">${data.code.body}</div>
+      </div>
+    </div>
+  `;
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // SIMULATION
+      // ═══════════════════════════════════════════════════════════
+
+      let messageCount = 0;
+      let processedCount = 0;
+
+      async function runSimulation(channelKey) {
+        const demo = channelDemos[channelKey];
+        const btn = document.getElementById("simBtn");
+        btn.disabled = true;
+        btn.textContent = "⏳ Processing...";
+
+        // Update flow header
+        const dot = document.getElementById("flowDot");
+        const label = document.getElementById("flowLabel");
+        dot.style.background = demo.color;
+        dot.style.boxShadow = `0 0 6px ${demo.color}`;
+        label.textContent = `Processing ${demo.label} message...`;
+
+        const body = document.getElementById("flowBody");
+        body.innerHTML = "";
+
+        messageCount++;
+        document.getElementById("statMessages").textContent = messageCount;
+
+        const steps = [
+          {
+            delay: 0,
+            layer: "channels",
+            icon: demo.icon,
+            label: `[Channel: ${demo.label}]`,
+            detail: `Raw inbound from ${demo.sender} → "${demo.body}"`,
+          },
+          {
+            delay: 600,
+            layer: "adapters",
+            icon: "🔄",
+            label: `[${demo.label}Adapter.Normalise()]`,
+            detail: `Extracted: SenderId="${demo.sender}", Body="${demo.body.substring(0, 40)}..."`,
+          },
+          {
+            delay: 1200,
+            layer: "unified",
+            icon: "📦",
+            label: `[UnifiedMessage created]`,
+            detail: `MessageId=${generateId()}, Channel=${demo.label}, ReceivedAt=${new Date().toISOString().substring(11, 19)}Z`,
+          },
+          {
+            delay: 1900,
+            layer: "queue",
+            icon: "📥",
+            label: `[Queue.EnqueueAsync()]`,
+            detail: `Message enqueued | QueueDepth=1 | Mode=BoundedChannel`,
+          },
+          {
+            delay: 2700,
+            layer: "orchestrator",
+            icon: "⚙️",
+            label: `[Orchestrator] Dequeued + classifying...`,
+            detail: `Intent classifier running on: "${demo.body.substring(0, 50)}"`,
+          },
+          {
+            delay: 3400,
+            layer: "orchestrator",
+            icon: "🎯",
+            label: `[IntentClassifier] → intent="${demo.intent}"`,
+            detail: `Enriching context: loading sender profile, conversation history`,
+          },
+          {
+            delay: 4100,
+            layer: "orchestrator",
+            icon: "🔀",
+            label: `[WorkflowRouter] → routing to ${demo.service}`,
+            detail: `Resolved handler: ${demo.service} implements IMessageHandler`,
+          },
+          {
+            delay: 4900,
+            layer: "services",
+            icon: "🏢",
+            label: `[${demo.service}.HandleAsync()]`,
+            detail: `Processing domain logic for ${demo.label} message (intent: ${demo.intent})`,
+          },
+          {
+            delay: 5600,
+            layer: "services",
+            icon: "✅",
+            label: `[Reply dispatched via ${demo.label}]`,
+            detail: `Response sent back through originating channel: ${demo.sender}`,
+          },
+        ];
+
+        for (const step of steps) {
+          await sleep(step.delay === 0 ? 0 : 600);
+
+          // Highlight active layer in diagram
+          document.querySelectorAll(".arch-layer").forEach((l) => {
+            l.style.borderColor = "";
+          });
+          const layerEl = document.getElementById("layer-" + step.layer);
+          if (layerEl) {
+            layerEl.style.borderColor = layers[step.layer].color;
+          }
+
+          const stepEl = document.createElement("div");
+          stepEl.className = "flow-step";
+          stepEl.innerHTML = `
+      <span class="step-icon">${step.icon}</span>
+      <span class="step-text">
+        <span class="label" style="color:${layers[step.layer]?.color || "#e8eaf0"}">${step.label}</span><br>
+        <span class="detail">${step.detail}</span>
+      </span>
+    `;
+          body.appendChild(stepEl);
+          body.scrollTop = body.scrollHeight;
+        }
+
+        await sleep(500);
+        processedCount++;
+        document.getElementById("statProcessed").textContent = processedCount;
+        label.textContent = `✓ ${demo.label} message fully processed`;
+        dot.style.background = "#10b981";
+        dot.style.boxShadow = `0 0 6px #10b981`;
+
+        // Reset diagram highlights
+        await sleep(1500);
+        document.querySelectorAll(".arch-layer").forEach((l) => {
+          l.style.borderColor = "";
+        });
+
+        btn.disabled = false;
+        btn.textContent = "▶ Run Full Flow";
+      }
+
+      function runFullSimulation() {
+        const channels = Object.keys(channelDemos);
+        const random = channels[Math.floor(Math.random() * channels.length)];
+        runSimulation(random);
+      }
+
+      function selectChannelDemo(channel, event) {
+        event.stopPropagation();
+        runSimulation(channel);
+      }
+
+      function sleep(ms) {
+        return new Promise((r) => setTimeout(r, ms));
+      }
+
+      function generateId() {
+        return "xxxxxxxx".replace(/x/g, () =>
+          Math.floor(Math.random() * 16).toString(16),
+        );
+      }
+
+      // ═══════════════════════════════════════════════════════════
+      // INIT
+      // ═══════════════════════════════════════════════════════════
+
+      renderPanel("channels");
+    </script>
+  </body>
+</html>
